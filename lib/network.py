@@ -66,5 +66,4 @@ class Network:
         # output layer
         outputs = tf.keras.layers.Dense(num_outputs,
             kernel_initializer='he_normal')(x)
-
         return tf.keras.models.Model(inputs=inputs, outputs=outputs)

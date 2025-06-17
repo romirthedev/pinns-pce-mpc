@@ -43,10 +43,7 @@ class L_BFGS_B:
         self.maxiter = maxiter
         self.metrics = ['loss']
         # initialize the progress bar
-        self.progbar = tf.keras.callbacks.ProgbarLogger(
-            count_mode='steps', stateful_metrics=self.metrics)
-        self.progbar.set_params( {
-            'verbose':1, 'epochs':1, 'steps':self.maxiter, 'metrics':self.metrics})
+        self.progbar = None
 
     def set_weights(self, flat_weights):
         """
@@ -111,9 +108,8 @@ class L_BFGS_B:
         Args:
             weights: flatten weights.
         """
-        self.progbar.on_batch_begin(0)
         loss, _ = self.evaluate(weights)
-        self.progbar.on_batch_end(0, logs=dict(zip(self.metrics, [loss])))
+        print(f"Current loss: {loss:.4e}")
 
     def fit(self):
         """
@@ -125,10 +121,6 @@ class L_BFGS_B:
             [ w.flatten() for w in self.model.get_weights() ])
         # optimize the weight vector
         print('Optimizer: L-BFGS-B (maxiter={})'.format(self.maxiter))
-        self.progbar.on_train_begin()
-        self.progbar.on_epoch_begin(1)
         scipy.optimize.fmin_l_bfgs_b(func=self.evaluate, x0=initial_weights,
             factr=self.factr, pgtol=self.pgtol, m=self.m,
             maxls=self.maxls, maxiter=self.maxiter, callback=self.callback)
-        self.progbar.on_epoch_end(1)
-        self.progbar.on_train_end()
